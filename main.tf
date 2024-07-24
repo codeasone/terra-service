@@ -19,10 +19,15 @@ resource "aws_key_pair" "deployer" {
   public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM7r9kPM7aVR9AJ2KmB3dkpbzjNwbEBA2ly3Hqic2M7c codeasone@gmail.com"
 }
 
+data "aws_ssm_parameter" "vpc_id" {
+  name = "/codeasone/vpc/id"
+}
+
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH inbound traffic"
-  vpc_id      = data.terraform_remote_state.shared.outputs.vpc_id
+  # vpc_id      = data.terraform_remote_state.shared.outputs.vpc_id
+  vpc_id = data.aws_ssm_parameter.vpc_id.value
 
   ingress {
     description = "SSH from anywhere"
@@ -44,10 +49,15 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
+data "aws_ssm_parameter" "public_subnet_id" {
+  name = "/codeasone/subnet/public/a"
+}
+
 resource "aws_instance" "example" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = "t3.small"
-  subnet_id                   = data.terraform_remote_state.shared.outputs.subnet_id
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.small"
+  # subnet_id                   = data.terraform_remote_state.shared.outputs.subnet_id
+  subnet_id                   = data.aws_ssm_parameter.public_subnet_id.value
   key_name                    = aws_key_pair.deployer.key_name
   associate_public_ip_address = true # This ensures the instance gets a public IP
 
