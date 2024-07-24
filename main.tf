@@ -53,17 +53,14 @@ data "aws_ssm_parameter" "public_subnet_id" {
   name = "/codeasone/subnet/public/a"
 }
 
-resource "aws_instance" "example" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.small"
-  # subnet_id                   = data.terraform_remote_state.shared.outputs.subnet_id
+module "ec2" {
+  # Note: the // is not a typo
+  source                      = "git::git@github.com:codeasone/terra-modules.git//ec2?ref=4e1a4629247ff22a0edaecec172e0e825e912cbb"
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "t3.small"
   subnet_id                   = data.aws_ssm_parameter.public_subnet_id.value
   key_name                    = aws_key_pair.deployer.key_name
-  associate_public_ip_address = true # This ensures the instance gets a public IP
-
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
-
-  tags = {
-    Name = "terra-service-instance"
-  }
+  security_group_ids          = [aws_security_group.allow_ssh.id]
+  associate_public_ip_address = true
+  instance_name               = "terra-service-instance"
 }
