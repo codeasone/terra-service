@@ -13,11 +13,11 @@ provider "aws" {
   profile = "codeasone"
 }
 
-data "terraform_remote_state" "shared" {
+data "terraform_remote_state" "infrastructure" {
   backend = "s3"
   config = {
     bucket  = "codeasone-infrastructure"
-    key     = "terraform-shared.tfstate"
+    key     = "terraform-infrastructure.tfstate"
     region  = "eu-west-1"
     profile = "codeasone"
   }

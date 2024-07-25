@@ -26,7 +26,7 @@ data "aws_ssm_parameter" "vpc_id" {
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH inbound traffic"
-  # vpc_id      = data.terraform_remote_state.shared.outputs.vpc_id
+  # vpc_id      = data.terraform_remote_state.infrastructure.outputs.vpc_id
   vpc_id = data.aws_ssm_parameter.vpc_id.value
 
   ingress {
